@@ -1,6 +1,6 @@
 import { FC } from 'react';
 import Link from 'next/link';
-import Button from '../ui/Button';
+import Button from './Button';
 
 interface FilterOption {
   name: string;

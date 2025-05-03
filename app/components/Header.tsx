@@ -2,8 +2,8 @@
 
 import Link from 'next/link';
 import { FC, useState, useEffect } from 'react';
-import Input from '../ui/Input';
-import Hamburger from '../ui/Hamburger';
+import Input from './Input';
+import Hamburger from './Hamburger';
 
 interface HeaderProps {
   cartItemsCount?: number;
@@ -18,7 +18,7 @@ const Header: FC<HeaderProps> = ({ cartItemsCount = 0 }) => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
     };
-    
+
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -36,9 +36,8 @@ const Header: FC<HeaderProps> = ({ cartItemsCount = 0 }) => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  const headerClasses = `sticky top-0 z-50 bg-white shadow-sm animate-fade-in transition-all duration-300 ${
-    isScrolled ? 'shadow-md' : 'shadow-sm'
-  }`;
+  const headerClasses = `sticky top-0 z-50 bg-white shadow-sm animate-fade-in transition-all duration-300 ${isScrolled ? 'shadow-md' : 'shadow-sm'
+    }`;
 
   const menuLinks = [
     { name: 'Men', href: '/categories/men' },
@@ -47,19 +46,19 @@ const Header: FC<HeaderProps> = ({ cartItemsCount = 0 }) => {
     { name: 'Festive', href: '/categories/festive' },
     { name: 'Luxury', href: '/categories/luxury' },
     { name: 'Accessories', href: '/categories/accessories' },
+    { name: 'Admin', href: '/admin' },
   ];
 
   return (
     <header className={headerClasses}>
       <div className="mx-auto max-w-7xl items-center justify-between px-4 py-3">
-        {/* Top bar with help and cart */}
         <div className="flex items-center justify-between border-b border-gray-100 pb-2">
           <div className="flex items-center">
             <button className="text-xs text-gray-500 hover:text-indigo-600 transition-colors duration-300">
               <span className="hidden sm:inline">Help</span> / Info
             </button>
           </div>
-          
+
           <div className="flex items-center gap-4">
             <Link href="/cart" className="flex items-center gap-1 text-xs text-gray-500 hover:text-indigo-600 transition-colors duration-300">
               <span>Cart</span>
@@ -71,7 +70,7 @@ const Header: FC<HeaderProps> = ({ cartItemsCount = 0 }) => {
             </Link>
           </div>
         </div>
-        
+
         {/* Main header with logo, navigation, and search */}
         <div className="flex items-center justify-between py-3">
           <div className="flex items-center">
@@ -81,20 +80,20 @@ const Header: FC<HeaderProps> = ({ cartItemsCount = 0 }) => {
               </h1>
             </Link>
           </div>
-          
+
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
             {menuLinks.map((link) => (
-              <Link 
+              <Link
                 key={link.name}
-                href={link.href} 
+                href={link.href}
                 className="text-sm font-medium text-gray-600 hover:text-indigo-600 transition-colors duration-300"
               >
                 {link.name}
               </Link>
             ))}
           </div>
-          
+
           <div className="flex items-center gap-4">
             <div className="relative w-64 hidden md:block">
               <Input
@@ -103,24 +102,23 @@ const Header: FC<HeaderProps> = ({ cartItemsCount = 0 }) => {
                 className="w-full"
               />
             </div>
-            
+
             {/* Mobile Menu Button */}
             <div className="md:hidden">
-              <Hamburger 
-                isOpen={isMenuOpen} 
-                toggle={toggleMenu} 
+              <Hamburger
+                isOpen={isMenuOpen}
+                toggle={toggleMenu}
                 variant="elastic"
                 className="text-gray-600 hover:text-indigo-600 transition-colors"
               />
             </div>
           </div>
         </div>
-        
+
         {/* Mobile Navigation Menu */}
-        <div 
-          className={`fixed inset-0 bg-white z-50 transform transition-transform duration-300 ease-in-out ${
-            isMenuOpen ? 'translate-x-0' : 'translate-x-full'
-          } md:hidden`}
+        <div
+          className={`fixed inset-0 bg-white z-50 transform transition-transform duration-300 ease-in-out ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'
+            } md:hidden`}
           onClick={(e) => e.stopPropagation()}
         >
           <div className="h-full flex flex-col overflow-y-auto">
@@ -130,29 +128,29 @@ const Header: FC<HeaderProps> = ({ cartItemsCount = 0 }) => {
                   <span className="text-indigo-600">E</span>LAM
                 </h1>
               </Link>
-              <Hamburger 
-                isOpen={isMenuOpen} 
-                toggle={toggleMenu} 
+              <Hamburger
+                isOpen={isMenuOpen}
+                toggle={toggleMenu}
                 variant="spin"
                 className="text-gray-600 hover:text-indigo-600 transition-colors"
               />
             </div>
-            
+
             <div className="p-4">
               <Input
                 type="text"
                 placeholder="Search for items..."
                 className="w-full mb-6"
               />
-              
+
               <nav className="space-y-6">
                 <div>
                   <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Categories</h3>
                   <ul className="space-y-4">
                     {menuLinks.map((link) => (
                       <li key={link.name}>
-                        <Link 
-                          href={link.href} 
+                        <Link
+                          href={link.href}
                           className="text-base font-medium text-gray-900 hover:text-indigo-600 transition-colors flex items-center"
                           onClick={() => setIsMenuOpen(false)}
                         >
@@ -163,13 +161,13 @@ const Header: FC<HeaderProps> = ({ cartItemsCount = 0 }) => {
                     ))}
                   </ul>
                 </div>
-                
+
                 <div className="border-t border-gray-100 pt-6">
                   <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">User</h3>
                   <ul className="space-y-4">
                     <li>
-                      <Link 
-                        href="/account" 
+                      <Link
+                        href="/account"
                         className="text-base font-medium text-gray-900 hover:text-indigo-600 transition-colors flex items-center"
                         onClick={() => setIsMenuOpen(false)}
                       >
@@ -180,8 +178,8 @@ const Header: FC<HeaderProps> = ({ cartItemsCount = 0 }) => {
                       </Link>
                     </li>
                     <li>
-                      <Link 
-                        href="/cart" 
+                      <Link
+                        href="/cart"
                         className="text-base font-medium text-gray-900 hover:text-indigo-600 transition-colors flex items-center"
                         onClick={() => setIsMenuOpen(false)}
                       >
@@ -197,8 +195,8 @@ const Header: FC<HeaderProps> = ({ cartItemsCount = 0 }) => {
                       </Link>
                     </li>
                     <li>
-                      <Link 
-                        href="/wishlist" 
+                      <Link
+                        href="/wishlist"
                         className="text-base font-medium text-gray-900 hover:text-indigo-600 transition-colors flex items-center"
                         onClick={() => setIsMenuOpen(false)}
                       >
@@ -210,10 +208,10 @@ const Header: FC<HeaderProps> = ({ cartItemsCount = 0 }) => {
                     </li>
                   </ul>
                 </div>
-                
+
                 <div className="pt-6">
-                  <Link 
-                    href="/auth/signin" 
+                  <Link
+                    href="/auth/signin"
                     className="w-full flex items-center justify-center px-4 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700"
                     onClick={() => setIsMenuOpen(false)}
                   >
