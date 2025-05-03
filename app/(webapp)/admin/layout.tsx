@@ -1,4 +1,7 @@
+// 'use client';
+
 import { Metadata } from "next";
+import AdminSidebar from "../../../app/components/admin/AdminSidebar";
 
 export const metadata: Metadata = {
     title: "Admin Portal",
@@ -9,5 +12,12 @@ export default function Layout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
-    return <>{children}</>;
+    return (
+        <div className="flex h-screen bg-gray-50">
+            <AdminSidebar />
+            <main className="flex-1 overflow-y-auto p-6">
+                {children}
+            </main>
+        </div>
+    );
 }
