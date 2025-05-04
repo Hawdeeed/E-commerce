@@ -1,125 +1,120 @@
-import { Fragment } from "react";
-import Header from './components/layout/Header';
-import Footer from './components/layout/Footer';
-import Sidebar from './components/layout/Sidebar';
-import ProductSection from './components/sections/ProductSection';
-import TagSection from './components/sections/TagSection';
-import CategoryGrid from './components/products/CategoryGrid';
-import Button from './components/ui/Button';
-
-import {
-  categories,
-  filterOptions,
-  luxuryProducts,
-  festiveProducts,
-  dailyProducts,
-  westernProducts,
-  mensProducts,
-  kidswearProducts,
-  accessoriesProducts,
-  topPicksTags
-} from './data/products';
+"use client";
+import { useState, useEffect } from 'react';
+import { getAllCategories, getAllProducts, getFeaturedProducts, ProductWithImages } from '../lib/api';
+import Banner from './components/Banner';
+import CategoryCard from './components/CategoryCard';
+import ProductCard from './components/ProductCard';
+import PromoOffer from './components/PromoOffer';
+import Loader from './components/Loader';
 
 export default function Home() {
+  const [categories, setCategories] = useState<any[]>([]);
+  const [lawnProducts, setLawnProducts] = useState<ProductWithImages[]>([]);
+  const [featuredProducts, setFeaturedProducts] = useState<ProductWithImages[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const categoriesData = await getAllCategories();
+        const lawnProductsData = await getAllProducts();
+        const featuredProductsData = await getFeaturedProducts();
+
+        setCategories(categoriesData);
+        setLawnProducts(lawnProductsData);
+        setFeaturedProducts(featuredProductsData);
+      } catch (err) {
+        setError('Failed to load data');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return <Loader size="large" fullScreen text="" />;
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-xl font-bold mb-2">Error loading data</h2>
+          <p className="text-gray-600">Please try refreshing the page.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header />
+    <div className="min-h-screen container mx-auto">
+      <div>
+        <Banner banner={{
+          id: 'main-banner',
+          title: "Welcome to Our Store",
+          image: "/images/banner.jpg",
+          subtitle: "Discover Our Latest Collection",
+          description: "Shop the latest trends in women's fashion",
+          buttonText: "Shop Now",
+          buttonLink: "/shop"
+        }} />
 
-      <main className="mx-auto max-w-7xl px-4 py-6 animate-fade-in">
-        <div className="flex flex-col md:flex-row md:gap-6">
-          {/* Sidebar */}
-          <Sidebar filterOptions={filterOptions} />
-
-          {/* Main content */}
-          <div className="w-full md:w-4/5 animate-fade-in">
-            {/* Categories */}
-            <div className="mb-8 bg-white p-4 rounded-md border border-gray-100 shadow-sm">
-              <CategoryGrid 
-                categories={categories} 
-                columns={7}
-              />
-            </div>
-
-            {/* Shop Luxury Picks */}
-            <ProductSection
-              title="Shop Luxury Picks"
-              products={luxuryProducts}
-              viewAllLink="/collections/luxury"
-            />
-
-            {/* Buy Festive Glam */}
-            <ProductSection
-              title="Buy Festive Glam"
-              products={festiveProducts}
-              viewAllLink="/collections/festive"
-            />
-
-            {/* Shop Daily Fits */}
-            <ProductSection
-              title="Shop Daily Fits"
-              products={dailyProducts}
-              viewAllLink="/collections/daily"
-            />
-
-            {/* Top Picks from Retail */}
-            <TagSection
-              title="Top Picks from Retail"
-              tags={topPicksTags}
-              columns={5}
-            />
-
-            {/* Shop Western */}
-            <ProductSection
-              title="Shop Western"
-              products={westernProducts}
-              viewAllLink="/collections/western"
-            />
-
-            {/* Buy Menswear */}
-            <ProductSection
-              title="Buy Menswear"
-              products={mensProducts}
-              viewAllLink="/collections/menswear"
-            />
-
-            {/* Shop Kidswear */}
-            <ProductSection
-              title="Shop Kidswear"
-              products={kidswearProducts}
-              viewAllLink="/collections/kidswear"
-            />
-
-            {/* Shop Accessories */}
-            <ProductSection
-              title="Shop Accessories"
-              products={accessoriesProducts}
-              viewAllLink="/collections/accessories"
-            />
-            
-            {/* Newsletter Subscription */}
-            <div className="mb-12 mt-16 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg shadow-md p-8 text-white">
-              <div className="flex flex-col md:flex-row items-center justify-between">
-                <div className="mb-4 md:mb-0 md:w-3/5">
-                  <h3 className="text-xl font-bold mb-2">Subscribe to our Newsletter</h3>
-                  <p className="text-sm text-indigo-100">Stay updated with the latest fashion trends and exclusive offers.</p>
-                </div>
-                <div className="flex w-full md:w-2/5">
-                  <input
-                    type="email"
-                    placeholder="Your email address"
-                    className="flex-grow px-4 py-2 rounded-l-md focus:outline-none text-gray-900"
-                  />
-                  <button className="bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 rounded-r-md transition-colors duration-300">
-                    Subscribe
-                  </button>
-                </div>
-              </div>
-            </div>
+        <div className="my-8">
+          <div className="flex justify-evenly space-x-4 overflow-x-auto py-4 scrollbar-hide">
+            {categories.map(category => (
+              <CategoryCard key={category.id} category={category} />
+            ))}
           </div>
         </div>
-      </main>
 
-      <Footer />
+        {/* <div className="my-8">
+          <div className="flex justify-evenly space-x-4 overflow-x-auto py-4 scrollbar-hide">
+            {categories.slice(0, 4).map(category => (
+              <CategoryCard key={category.id} category={category} />
+            ))}
+          </div>
+        </div> */}
+
+        <div className="my-8">
+          <div className="mb-4">
+            <h2 className="text-xl font-bold">Lawn 2025</h2>
+            <p className="text-sm text-gray-500">DIRECTLY FROM THE EXPERTS fashion gurus</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {lawnProducts.map(product => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        </div>
+
+        <div className="my-8">
+          <div className="mb-4">
+            <h2 className="text-xl font-bold">Shop Luxury Picks</h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {featuredProducts.slice(0, 4).map(product => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+            {featuredProducts.slice(4, 8).map(product => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        </div>
+
+        <PromoOffer
+          title="Special Offer"
+          description="Get 20% off on your first purchase"
+          image="/images/promo.jpg"
+          buttonText="Shop Now"
+          buttonLink="/shop"
+        />
+      </div>
     </div>
   );
 }
