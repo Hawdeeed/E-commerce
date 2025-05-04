@@ -1,4 +1,4 @@
-const { supabase } = require('./supabase');
+import { supabase } from './supabase';
 import { Database } from './database.types';
 
 export type Product = Database['public']['Tables']['products']['Row'];

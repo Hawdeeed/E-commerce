@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC } from 'react';
 
 interface HamburgerProps {
   isOpen: boolean;
@@ -67,4 +67,4 @@ const Hamburger: FC<HamburgerProps> = ({
   );
 };
 
-export default Hamburger; 
+export default Hamburger;

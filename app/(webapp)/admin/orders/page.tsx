@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { supabase } from '../../../../lib/supabase';
 import Loader from '../../../../app/components/Loader';
 import Button from '../../../components/Button';
@@ -37,7 +36,6 @@ interface OrderItem {
 }
 
 export default function OrdersPage() {
-  const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');

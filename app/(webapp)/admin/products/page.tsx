@@ -8,6 +8,7 @@ import Loader from '../../../../app/components/Loader';
 import Button from '../../../components/Button';
 import Link from 'next/link';
 import { ROUTES } from '@/app/share/routes';
+import Image from 'next/image';
 
 type Product = ProductComplete;
 
@@ -211,10 +212,12 @@ export default function ProductsPage() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="h-10 w-10 flex-shrink-0">
-                          <img
+                          <Image
                             className="h-10 w-10 rounded-md object-cover"
                             src={product.images?.[0]?.url || '/placeholder-product.jpg'}
                             alt={product.name}
+                            width={80}
+                            height={80}
                           />
                         </div>
                         <div className="ml-4">

@@ -51,7 +51,6 @@ export default function AddProductPage() {
   
   const [files, setFiles] = useState<File[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [success, setSuccess] = useState(false);
@@ -63,8 +62,6 @@ export default function AddProductPage() {
         setCategories(categoriesData);
       } catch (error) {
         console.error('Error fetching categories:', error);
-      } finally {
-        setLoading(false);
       }
     }
 

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCart } from '../../components/CartContext';
 import { ROUTES } from '@/app/share/routes';
+import Image from 'next/image';
 
 export default function CartPage() {
   const router = useRouter();
@@ -105,9 +106,11 @@ export default function CartPage() {
                 <div key={item.id} className="p-6 flex flex-col sm:flex-row items-start sm:items-center">
                   {/* Product Image */}
                   <div className="w-full sm:w-20 h-20 flex-shrink-0 mb-4 sm:mb-0">
-                    <img
+                    <Image
                       src={item.image || '/placeholder-product.jpg'}
                       alt={item.name}
+                      width={80}
+                      height={80}
                       className="w-20 h-20 object-cover rounded-md"
                     />
                   </div>
