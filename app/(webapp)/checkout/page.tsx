@@ -7,6 +7,7 @@ import { useCart } from '../../components/CartContext';
 import { supabase } from '../../../lib/supabase';
 import Loader from '../../components/Loader';
 import { ROUTES } from '@/app/share/routes';
+import Image from 'next/image';
 
 interface FormData {
   firstName: string;
@@ -453,9 +454,11 @@ export default function CheckoutPage() {
                 {items.map((item: any) => (
                   <div key={item.id} className="flex items-center">
                     <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
-                      <img
+                      <Image
                         src={item.image || '/placeholder-product.jpg'}
                         alt={item.name}
+                        width={80}
+                        height={80}
                         className="h-full w-full object-cover object-center"
                       />
                     </div>

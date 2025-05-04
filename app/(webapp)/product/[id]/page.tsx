@@ -4,6 +4,7 @@ import { useState, useEffect, use } from 'react';
 import { getProductById, ProductComplete } from '../../../../lib/api';
 import Loader from '../../../../app/components/Loader';
 import { useCart } from '../../../components/CartContext';
+import Image from 'next/image';
 
 export default function ProductDetail({ params }: { params: { id: string } }) {
   const unwrappedParams = use(params) as { id: string };
@@ -61,12 +62,6 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
     return <div className="text-center py-20">Product not found</div>;
   }
 
-  const handleDecreaseQuantity = () => {
-    if (quantity > 1) {
-      setQuantity(quantity - 1);
-    }
-  };
-
   const handleIncreaseQuantity = () => {
     if (quantity < 5) {
       setQuantity(quantity + 1);
@@ -106,9 +101,11 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
       <div className="flex flex-col md:flex-row gap-8">
         <div className="w-full md:w-1/2">
           <div className="relative h-[500px] mb-4 bg-gray-100">
-            <img
+            <Image
               src={product.images?.[0]?.url || '/placeholder-product.jpg'}
               alt={product.name}
+              width={80}
+              height={80}
               className="w-full h-auto"
             />
             <button className="absolute top-4 right-4 bg-white rounded-full p-2">
@@ -130,9 +127,11 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
           <div className="flex gap-2 overflow-x-auto">
             {Array(5).fill(0).map((_, index) => (
               <div key={index} className="w-20 h-20 flex-shrink-0 border border-gray-200 relative">
-                <img
+                <Image
                   src={product.images?.[0]?.url || '/placeholder-product.jpg'}
                   alt={`${product.name} thumbnail ${index + 1}`}
+                  width={80}
+                  height={80}
                   className="w-full h-auto"
                 />
               </div>
@@ -168,9 +167,11 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
               )}
             </div>
             <div className="mb-4">
-              <img
+              <Image
                 src={product.images?.[0]?.url || '/placeholder-product.jpg'}
                 alt={product.name}
+                width={80}
+                height={80}
                 className="w-full h-auto"
               />
             </div>

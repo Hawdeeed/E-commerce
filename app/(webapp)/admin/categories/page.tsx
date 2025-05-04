@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { getAllCategories } from '../../../../lib/api';
 import { supabase } from '../../../../lib/supabase';
@@ -8,26 +8,24 @@ import Loader from '../../../../app/components/Loader';
 import Button from '../../../components/Button';
 import Link from 'next/link';
 import { ROUTES } from '@/app/share/routes';
+import Image from 'next/image';
+import { CategoryResponse } from '@/app/share/types';
 
 export default function CategoriesPage() {
   const router = useRouter();
-  const [categories, setCategories] = useState<any[]>([]);
+  const [categories, setCategories] = useState<CategoryResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
-  useEffect(() => {
-    fetchCategories();
-  }, [searchQuery]);
-
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
       setLoading(true);
       const allCategories = await getAllCategories();
       
       // Filter categories by search query
       const filteredCategories = searchQuery 
-        ? allCategories.filter((category: any) => 
+        ? allCategories.filter((category: CategoryResponse) => 
             category.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             category.description?.toLowerCase().includes(searchQuery.toLowerCase())
           )
@@ -39,7 +37,11 @@ export default function CategoriesPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [searchQuery]);
+
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
 
   const handleDeleteCategory = async (categoryId: string) => {
     if (confirm('Are you sure you want to delete this category? Products in this category will become uncategorized.')) {
@@ -162,10 +164,12 @@ export default function CategoriesPage() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="h-10 w-10 flex-shrink-0">
-                          <img
+                          <Image
                             className="h-10 w-10 rounded-full object-cover"
                             src={category.image_url || '/placeholder-category.jpg'}
                             alt={category.name}
+                            width={40}
+                            height={40}
                           />
                         </div>
                         <div className="ml-4">

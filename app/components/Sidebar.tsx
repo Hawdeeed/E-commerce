@@ -1,14 +1,11 @@
-import { FC, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { getAllCategories } from '@/lib/api';
 import { Category } from '../share/types';
 import Loader from './Loader';
 
-interface SidebarProps {
-  filterOptions: any[];
-}
 
-const Sidebar: FC<SidebarProps> = ({ filterOptions }) => {
+const Sidebar = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);

@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import Button from './Button';
+import Image from 'next/image';
 
 interface FileUploadProps {
   label?: string;
@@ -172,9 +172,11 @@ const FileUpload: React.FC<FileUploadProps> = ({
           {previews.map((preview, index) => (
             <div key={index} className="relative group">
               <div className="relative h-24 w-full overflow-hidden rounded-md">
-                <img
+                <Image
                   src={preview}
                   alt={`Preview ${index}`}
+                  width={96}
+                  height={96}
                   className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-110"
                 />
               </div>
