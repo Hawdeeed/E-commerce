@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../../../../lib/supabase';
 import Loader from '../../../../../app/components/Loader';
@@ -19,11 +19,7 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
   const [trackingNumber, setTrackingNumber] = useState('');
   const [notes, setNotes] = useState('');
 
-  useEffect(() => {
-    fetchOrderDetails();
-  }, [orderId]);
-
-  const fetchOrderDetails = async () => {
+  const fetchOrderDetails = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -72,7 +68,11 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
     } finally {
       setLoading(false);
     }
-  };
+  }, [orderId]); // Main dependencies are orderId and supabase
+
+  useEffect(() => {
+    fetchOrderDetails();
+  }, [fetchOrderDetails]);
 
   const handleUpdateStatus = async (newStatus: string) => {
     if (!order) return;
@@ -184,8 +184,8 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
       <div className="text-center py-12">
         <h2 className="text-2xl font-bold text-gray-900 mb-4">Order Not Found</h2>
         <p className="text-gray-600 mb-6">The order you are looking for does not exist or has been deleted.</p>
-        <Button 
-          variant="primary" 
+        <Button
+          variant="primary"
           onClick={() => router.push(ROUTES.adminOrder)}
         >
           Back to Orders
@@ -199,7 +199,7 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
       <div className="flex justify-between items-start">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Order #{order.id}</h1>
-          <p className="text-gray-600">{formatDate(order.created_at)}</p>
+          <p className="text-gray-600">{formatDate(order.items?.[0].created_at || '')}</p>
         </div>
         <Button
           variant="secondary"
@@ -245,12 +245,12 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
               <h2 className="text-lg font-medium text-gray-900">Order Items</h2>
             </div>
             <ul className="divide-y divide-gray-200">
-              {order.items.map((item) => (
+              {order.items?.map((item) => (
                 <li key={item.id} className="px-6 py-4 flex items-center">
                   <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
                     <Image
-                      src={item.product.images[0]?.url || '/placeholder-product.jpg'}
-                      alt={item.product.name}
+                      src={item.product?.images[0]?.url || '/placeholder-product.jpg'}
+                      alt={item.product?.name || ''}
                       width={80}
                       height={80}
                       className="h-full w-full object-cover object-center"
@@ -259,7 +259,7 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
                   <div className="ml-4 flex-1">
                     <div className="flex justify-between">
                       <div>
-                        <h3 className="text-base font-medium text-gray-900">{item.product.name}</h3>
+                        <h3 className="text-base font-medium text-gray-900">{item.product?.name}</h3>
                         {item.variant && (
                           <p className="mt-1 text-sm text-gray-500">
                             {item.variant.size && `Size: ${item.variant.size}`}
@@ -269,13 +269,13 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
                         )}
                       </div>
                       <p className="text-sm font-medium text-gray-900">
-                        {formatPrice(item.price)} x {item.quantity}
+                        {formatPrice(item.unit_price)} x {item.quantity}
                       </p>
                     </div>
                     <div className="flex justify-between mt-2">
                       <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
                       <p className="text-sm font-medium text-gray-900">
-                        {formatPrice(item.price * item.quantity)}
+                        {formatPrice(item.total_price)}
                       </p>
                     </div>
                   </div>
@@ -303,7 +303,7 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
               <p className="text-gray-600">{order.customer_phone}</p>
               <div className="mt-4">
                 <h3 className="text-sm font-medium text-gray-900">Shipping Address</h3>
-                <p className="mt-1 text-gray-600 whitespace-pre-line">{order.shipping_address}</p>
+                <p className="mt-1 text-gray-600 whitespace-pre-line">{order.shipping_address?.address}</p>
               </div>
             </div>
           </div>
@@ -323,11 +323,10 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
                       key={status}
                       onClick={() => handleUpdateStatus(status)}
                       disabled={order.status === status || updatingStatus}
-                      className={`px-3 py-2 text-sm font-medium rounded-md ${
-                        order.status === status
-                          ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
-                          : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
-                      } ${getStatusBadgeClass(status)} disabled:opacity-50`}
+                      className={`px-3 py-2 text-sm font-medium rounded-md ${order.status === status
+                        ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
+                        : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                        } ${getStatusBadgeClass(status)} disabled:opacity-50`}
                     >
                       {status.charAt(0).toUpperCase() + status.slice(1)}
                     </button>

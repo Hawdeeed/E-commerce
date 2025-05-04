@@ -1,15 +1,15 @@
 'use client';
 
-import { useState, useEffect, use } from 'react';
-import { getProductById, ProductComplete } from '../../../../lib/api';
+import { useState, useEffect } from 'react';
+import { getProductById } from '../../../../lib/api';
 import Loader from '../../../../app/components/Loader';
 import { useCart } from '../../../components/CartContext';
 import Image from 'next/image';
+import { Product } from '@/app/share/types';
 
 export default function ProductDetail({ params }: { params: { id: string } }) {
-  const unwrappedParams = use(params) as { id: string };
-  const productId = unwrappedParams.id;
-  const [product, setProduct] = useState<ProductComplete | null>(null);
+  const productId = params.id;
+  const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [addingToCart, setAddingToCart] = useState(false);
@@ -34,10 +34,12 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
           if (sizes.length > 0) {
             setSelectedSize(sizes[0]);
           }
-          
-          const colors = productData.variants
-            .map(v => v.color)
-            .filter((color): color is string => color !== null);
+
+          const colors = Array.from(new Set(
+            productData.variants
+              ?.flatMap(v => v.color || [])
+              .filter(Boolean)
+          ));
 
           if (colors.length > 0) {
             setSelectedColor(colors[0]);
@@ -67,30 +69,33 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
       setQuantity(quantity + 1);
     }
   };
-  
+
   const handleAddToCart = () => {
     if (!product) return;
-    
+
     setAddingToCart(true);
-    
+
     const selectedVariant = product.variants?.find(
-      v => v.size === selectedSize && v.color === selectedColor
+      v => v.size === selectedSize && v.color?.includes(selectedColor)
     );
-    
+
     const cartItem = {
       id: '',
       productId: product.id,
       variantId: selectedVariant?.id || null,
       name: product.name,
-      price: product.sale_price || product.price,
+      price: selectedVariant?.price || product.sale_price || product.price,
       quantity: quantity,
       image: product.images?.[0]?.url || '/placeholder-product.jpg',
-      size: selectedSize || null,
-      color: selectedColor || null
+      variant: {
+        name: selectedVariant?.name || '',
+        size: selectedSize || '',
+        color: selectedVariant?.color || []
+      }
     };
-    
+
     addItem(cartItem);
-    
+
     setTimeout(() => {
       setAddingToCart(false);
     }, 500);
@@ -166,15 +171,6 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
                 </div>
               )}
             </div>
-            <div className="mb-4">
-              <Image
-                src={product.images?.[0]?.url || '/placeholder-product.jpg'}
-                alt={product.name}
-                width={80}
-                height={80}
-                className="w-full h-auto"
-              />
-            </div>
             <div className="space-y-4">
               <div>
                 <span className="font-bold">Sizes:</span>
@@ -186,11 +182,10 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
                     .map((size) => (
                       <button
                         key={size}
-                        className={`px-4 py-2 rounded-full border-2 ${
-                          selectedSize === size
-                            ? 'border-gray-800 bg-gray-50'
-                            : 'border-gray-300'
-                        }`}
+                        className={`px-4 py-2 rounded-full border-2 ${selectedSize === size
+                          ? 'border-gray-800 bg-gray-50'
+                          : 'border-gray-300'
+                          }`}
                         onClick={() => {
                           setSelectedSize(size || '');
                           // Reset color selection when size changes
@@ -205,24 +200,29 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
 
               {selectedSize && (
                 <div>
-                  <span className="font-bold">Available Colors:</span>
+                  <span className="font-bold">Colors:</span>
                   <div className="flex flex-wrap gap-2 mt-2">
-                    {product.variants
-                      ?.filter(v => v.size === selectedSize)
-                      .flatMap(v => v.color || [])
-                      .filter((color, index, self) => self.indexOf(color) === index)
-                      .map((color) => (
-                        <button
-                          key={color}
-                          className={`w-6 h-6 rounded-full ${
-                            selectedColor === color
-                              ? 'ring-2 ring-offset-2 ring-gray-800'
-                              : ''
+                    {Array.from(new Set(
+                      product.variants
+                        ?.filter(v => v.size === selectedSize)
+                        ?.flatMap(v => v.color || [])
+                        .filter(Boolean)
+                    )).map((color) => (
+                      <button
+                        key={color}
+                        className={`px-4 py-2 rounded-full border-2 ${selectedColor === color
+                          ? 'border-gray-800 bg-gray-50'
+                          : 'border-gray-300'
                           }`}
-                          style={{ backgroundColor: color || '#000' }}
-                          onClick={() => setSelectedColor(color)}
-                        ></button>
-                      ))}
+                        onClick={() => setSelectedColor(color)}
+                        style={{
+                          backgroundColor: color.toLowerCase(),
+                          color: ['white', '#ffffff', '#fff'].includes(color.toLowerCase()) ? '#000' : '#fff'
+                        }}
+                      >
+                        {color}
+                      </button>
+                    ))}
                   </div>
                 </div>
               )}

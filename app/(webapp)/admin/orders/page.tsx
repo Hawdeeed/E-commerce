@@ -1,39 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../../../lib/supabase';
 import Loader from '../../../../app/components/Loader';
 import Button from '../../../components/Button';
 import Link from 'next/link';
 import { ROUTES } from '@/app/share/routes';
-
-interface Order {
-  id: string;
-  created_at: string;
-  user_id: string;
-  status: string;
-  total_amount: number;
-  shipping_address: string;
-  payment_method: string;
-  customer_name: string;
-  customer_email: string;
-  items: OrderItem[];
-}
-
-interface OrderItem {
-  id: string;
-  order_id: string;
-  product_id: string;
-  product_name: string;
-  variant_id: string | null;
-  variant_name: string | null;
-  quantity: number;
-  price: number;
-  product?: {
-    name: string;
-    images: { url: string }[];
-  };
-}
+import { Order } from '@/app/share/types';
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -44,14 +17,10 @@ export default function OrdersPage() {
   const [totalPages, setTotalPages] = useState(1);
   const ordersPerPage = 10;
 
-  useEffect(() => {
-    fetchOrders();
-  }, [currentPage, searchQuery, statusFilter]);
-
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     try {
       setLoading(true);
-      
+
       // Fetch orders
       let query = supabase
         .from('orders')
@@ -63,39 +32,43 @@ export default function OrdersPage() {
           )
         `)
         .order('created_at', { ascending: false });
-      
+
       // Apply status filter
       if (statusFilter !== 'all') {
         query = query.eq('status', statusFilter);
       }
-      
+
       const { data: allOrders, error } = await query;
-      
+
       if (error) throw error;
-      
+
       // Filter orders by search query
-      const filteredOrders = searchQuery 
-        ? allOrders.filter((order: any) => 
-            order.customer_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            order.customer_email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            order.id.toLowerCase().includes(searchQuery.toLowerCase())
-          )
+      const filteredOrders = searchQuery
+        ? allOrders.filter((order: Order) =>
+          order.customer_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          order.customer_email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          order.id.toLowerCase().includes(searchQuery.toLowerCase())
+        )
         : allOrders;
-      
+
       // Calculate pagination
       setTotalPages(Math.ceil(filteredOrders.length / ordersPerPage));
-      
+
       // Get current page orders
       const startIndex = (currentPage - 1) * ordersPerPage;
       const paginatedOrders = filteredOrders.slice(startIndex, startIndex + ordersPerPage);
-      
+
       setOrders(paginatedOrders || []);
     } catch (error) {
       console.error('Error fetching orders:', error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, searchQuery, statusFilter, ordersPerPage]); // Add all dependencies here
+
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]); // Now just depends on fetchOrders
 
   const handleUpdateOrderStatus = async (orderId: string, newStatus: string) => {
     try {
@@ -103,14 +76,14 @@ export default function OrdersPage() {
         .from('orders')
         .update({ status: newStatus })
         .eq('id', orderId);
-      
+
       if (error) throw error;
-      
+
       // Update local state
-      setOrders(prev => 
-        prev.map(order => 
-          order.id === orderId 
-            ? { ...order, status: newStatus } 
+      setOrders(prev =>
+        prev.map(order =>
+          order.id === orderId
+            ? { ...order, status: newStatus }
             : order
         )
       );
@@ -178,7 +151,7 @@ export default function OrdersPage() {
                 Search
               </Button>
             </form>
-            
+
             <div className="flex items-center">
               <span className="text-sm text-gray-500 mr-2">Status:</span>
               <select
@@ -234,7 +207,7 @@ export default function OrdersPage() {
                       <div className="text-sm text-gray-500">{order.customer_email}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {formatDate(order.created_at)}
+                      {formatDate(order.items?.[0].created_at || '')}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClass(order.status)}`}>
@@ -262,9 +235,8 @@ export default function OrdersPage() {
                                 key={status}
                                 onClick={() => handleUpdateOrderStatus(order.id, status)}
                                 disabled={order.status === status}
-                                className={`block px-4 py-2 text-sm text-left w-full hover:bg-gray-100 ${
-                                  order.status === status ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'text-gray-700'
-                                }`}
+                                className={`block px-4 py-2 text-sm text-left w-full hover:bg-gray-100 ${order.status === status ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'text-gray-700'
+                                  }`}
                               >
                                 {status.charAt(0).toUpperCase() + status.slice(1)}
                               </button>
@@ -331,11 +303,10 @@ export default function OrdersPage() {
                     <button
                       key={index}
                       onClick={() => setCurrentPage(index + 1)}
-                      className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                        currentPage === index + 1
-                          ? 'z-10 bg-indigo-50 border-indigo-500 text-indigo-600'
-                          : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
-                      }`}
+                      className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${currentPage === index + 1
+                        ? 'z-10 bg-indigo-50 border-indigo-500 text-indigo-600'
+                        : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                        }`}
                     >
                       {index + 1}
                     </button>

@@ -1,9 +1,9 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { ProductWithImages } from '../../lib/api';
+import { Product } from '../share/types';
 
 interface ProductCardProps {
-  product: ProductWithImages;
+  product: Product;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
@@ -12,7 +12,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       <div className="relative">
         <div className="relative w-full h-60 overflow-hidden">
           <Image
-            src={product.images[0]?.url || '/placeholder-product.jpg'}
+            src={product.images?.[0]?.url || '/placeholder-product.jpg'}
             alt={product.name}
             fill
             className="object-cover transition-transform duration-300 group-hover:scale-105"

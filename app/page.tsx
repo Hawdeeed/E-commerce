@@ -1,16 +1,18 @@
 "use client";
 import { useState, useEffect } from 'react';
-import { getAllCategories, getAllProducts, getFeaturedProducts, ProductWithImages } from '../lib/api';
+import { getAllCategories, getAllProducts, getFeaturedProducts } from '../lib/api';
 import Banner from './components/Banner';
 import CategoryCard from './components/CategoryCard';
 import ProductCard from './components/ProductCard';
 import PromoOffer from './components/PromoOffer';
 import Loader from './components/Loader';
+import { Category } from '@/app/share/types';
+import { Product } from '@/app/share/types';
 
 export default function Home() {
-  const [categories, setCategories] = useState<any[]>([]);
-  const [lawnProducts, setLawnProducts] = useState<ProductWithImages[]>([]);
-  const [featuredProducts, setFeaturedProducts] = useState<ProductWithImages[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -18,11 +20,11 @@ export default function Home() {
     async function fetchData() {
       try {
         const categoriesData = await getAllCategories();
-        const lawnProductsData = await getAllProducts();
+        const productsData = await getAllProducts();
         const featuredProductsData = await getFeaturedProducts();
 
         setCategories(categoriesData);
-        setLawnProducts(lawnProductsData);
+        setProducts(productsData);
         setFeaturedProducts(featuredProductsData);
       } catch (err) {
         setError('Failed to load data');
@@ -71,21 +73,13 @@ export default function Home() {
           </div>
         </div>
 
-        {/* <div className="my-8">
-          <div className="flex justify-evenly space-x-4 overflow-x-auto py-4 scrollbar-hide">
-            {categories.slice(0, 4).map(category => (
-              <CategoryCard key={category.id} category={category} />
-            ))}
-          </div>
-        </div> */}
-
         <div className="my-8">
           <div className="mb-4">
             <h2 className="text-xl font-bold">Lawn 2025</h2>
             <p className="text-sm text-gray-500">DIRECTLY FROM THE EXPERTS fashion gurus</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {lawnProducts.map(product => (
+            {products.map(product => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>

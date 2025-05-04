@@ -1,9 +1,9 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { Database } from '../../lib/database.types';
+import { Category } from '../share/types';
 
 interface CategoryCardProps {
-  category: Database['public']['Tables']['categories']['Row'];
+  category: Category;
 }
 
 const CategoryCard: React.FC<CategoryCardProps> = ({ category }) => {

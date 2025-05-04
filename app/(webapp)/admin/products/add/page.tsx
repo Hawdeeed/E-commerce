@@ -10,12 +10,13 @@ import Select from '../../../../components/Select';
 import Button from '../../../../components/Button';
 import FileUpload from '../../../../components/FileUpload';
 import { ROUTES } from '@/app/share/routes';
+import { Category } from '@/app/share/types';
 
 interface FormData {
   name: string;
   description: string;
-  price: string;
-  sale_price: string;
+  price: number;
+  sale_price: number;
   category_id: string;
   in_stock: boolean;
   featured: boolean;
@@ -27,9 +28,9 @@ interface Variant {
   name: string;
   size: string;
   color: string[];
-  price: string;
+  price: number;
   sku: string;
-  sale_price?: string;
+  sale_price?: number;
   in_stock?: boolean;
 }
 
@@ -38,19 +39,19 @@ export default function AddProductPage() {
   const [formData, setFormData] = useState<FormData>({
     name: '',
     description: '',
-    price: '',
-    sale_price: '',
+    price: 0,
+    sale_price: 0,
     category_id: '',
     in_stock: true,
     featured: false,
   });
-  
+
   const [variants, setVariants] = useState<Variant[]>([
-    { name: '', size: '', color: [], price: '', sku: '' }
+    { name: '', size: '', color: [], price: 0, sku: '' }
   ]);
-  
+
   const [files, setFiles] = useState<File[]>([]);
-  const [categories, setCategories] = useState<any[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [success, setSuccess] = useState(false);
@@ -70,7 +71,7 @@ export default function AddProductPage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target as HTMLInputElement;
-    
+
     setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
@@ -84,7 +85,7 @@ export default function AddProductPage() {
   };
 
   const addVariant = () => {
-    setVariants([...variants, { name: '', size: '', color: [], price: '', sku: '' }]);
+    setVariants([...variants, { name: '', size: '', color: [], price: 0, sku: '' }]);
   };
 
   const removeVariant = (index: number) => {
@@ -101,26 +102,26 @@ export default function AddProductPage() {
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    
+
     if (!formData.name.trim()) newErrors.name = 'Product name is required';
-    if (!formData.price.trim()) newErrors.price = 'Price is required';
-    if (isNaN(Number(formData.price))) newErrors.price = 'Price must be a number';
+    if (!formData.price) newErrors.price = 'Price is required';
+    if (isNaN(Number(formData.price))) newErrors.price = 'Price must be a number ';
     if (formData.sale_price && isNaN(Number(formData.sale_price))) {
       newErrors.sale_price = 'Sale price must be a number';
     }
     if (!formData.category_id) newErrors.category_id = 'Category is required';
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
-    
+
     setSubmitting(true);
-    
+
     try {
       // 1. Insert product
       const { data: product, error: productError } = await supabase
@@ -137,7 +138,7 @@ export default function AddProductPage() {
         .single();
 
       if (productError) throw productError;
-      
+
       // 2. Insert variants
       const variantsToInsert = variants
         .filter(v => v.name.trim() || v.size.trim() || v.color.length > 0)
@@ -155,10 +156,10 @@ export default function AddProductPage() {
         const { error: variantsError } = await supabase
           .from('product_variants')
           .insert(variantsToInsert);
-        
+
         if (variantsError) throw variantsError;
       }
-      
+
       // 3. Upload images and insert image records
       if (files.length > 0) {
         for (let i = 0; i < files.length; i++) {
@@ -166,19 +167,19 @@ export default function AddProductPage() {
           const fileExt = file.name.split('.').pop();
           const fileName = `${product.id}_${i}.${fileExt}`;
           const filePath = `products/${fileName}`;
-          
+
           // Upload file to storage
           const { error: uploadError } = await supabase.storage
             .from('product-images')
             .upload(filePath, file);
-          
+
           if (uploadError) throw uploadError;
-          
+
           // Get public URL
           const { data: urlData } = supabase.storage
             .from('product-images')
             .getPublicUrl(filePath);
-          
+
           // Insert image record
           const { error: imageError } = await supabase
             .from('product_images')
@@ -188,18 +189,18 @@ export default function AddProductPage() {
               alt_text: formData.name,
               is_primary: i === 0, // First image is primary
             });
-          
+
           if (imageError) throw imageError;
         }
       }
-      
+
       setSuccess(true);
-      
+
       // Reset form after successful submission
       setTimeout(() => {
         router.push(ROUTES.adminProduct);
       }, 2000);
-      
+
     } catch (error) {
       console.error('Error adding product:', error);
     } finally {
@@ -238,7 +239,7 @@ export default function AddProductPage() {
         <form onSubmit={handleSubmit} className="space-y-8 animate-fadeIn">
           <div className="bg-white shadow-md rounded-lg p-6 space-y-6">
             <h2 className="text-lg font-medium text-gray-900 border-b pb-2">Basic Information</h2>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Input
                 label="Product Name"
@@ -249,7 +250,7 @@ export default function AddProductPage() {
                 fullWidth
                 required
               />
-              
+
               <Select
                 label="Category"
                 name="category_id"
@@ -261,7 +262,7 @@ export default function AddProductPage() {
                 required
               />
             </div>
-            
+
             <TextArea
               label="Description"
               name="description"
@@ -269,7 +270,7 @@ export default function AddProductPage() {
               onChange={handleChange}
               fullWidth
             />
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Input
                 label="Price (PKR)"
@@ -281,7 +282,7 @@ export default function AddProductPage() {
                 fullWidth
                 required
               />
-              
+
               <Input
                 label="Sale Price (PKR)"
                 name="sale_price"
@@ -293,7 +294,7 @@ export default function AddProductPage() {
                 fullWidth
               />
             </div>
-            
+
             <div className="flex items-center space-x-6">
               <label className="flex items-center">
                 <input
@@ -305,7 +306,7 @@ export default function AddProductPage() {
                 />
                 <span className="ml-2 text-sm text-gray-700">In Stock</span>
               </label>
-              
+
               <label className="flex items-center">
                 <input
                   type="checkbox"
@@ -318,7 +319,7 @@ export default function AddProductPage() {
               </label>
             </div>
           </div>
-          
+
           <div className="bg-white shadow-md rounded-lg p-6 space-y-6">
             <div className="flex justify-between items-center border-b pb-2">
               <h2 className="text-lg font-medium text-gray-900">Product Variants</h2>
@@ -331,7 +332,7 @@ export default function AddProductPage() {
                 Add Variant
               </Button>
             </div>
-            
+
             {variants.map((variant, index) => (
               <div key={index} className="p-4 border border-gray-200 rounded-md relative hover:border-indigo-300 transition-colors duration-200">
                 {variants.length > 1 && (
@@ -345,7 +346,7 @@ export default function AddProductPage() {
                     </svg>
                   </button>
                 )}
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <Input
                     label="Name"
@@ -353,14 +354,14 @@ export default function AddProductPage() {
                     onChange={(e) => handleVariantChange(index, 'name', e.target.value)}
                     fullWidth
                   />
-                  
+
                   <Input
                     label="Size"
                     value={variant.size}
                     onChange={(e) => handleVariantChange(index, 'size', e.target.value)}
                     fullWidth
                   />
-                  
+
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-700">Colors</label>
                     <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
@@ -385,7 +386,7 @@ export default function AddProductPage() {
                       ))}
                     </div>
                   </div>
-                  
+
                   <Input
                     label="Price (leave empty to use main price)"
                     type="number"
@@ -393,7 +394,7 @@ export default function AddProductPage() {
                     onChange={(e) => handleVariantChange(index, 'price', e.target.value)}
                     fullWidth
                   />
-                  
+
                   <Input
                     label="SKU"
                     value={variant.sku}
@@ -404,10 +405,10 @@ export default function AddProductPage() {
               </div>
             ))}
           </div>
-          
+
           <div className="bg-white shadow-md rounded-lg p-6 space-y-6">
             <h2 className="text-lg font-medium text-gray-900 border-b pb-2">Product Images</h2>
-            
+
             <FileUpload
               label="Upload Images"
               accept="image/*"
@@ -416,7 +417,7 @@ export default function AddProductPage() {
               helperText="First image will be used as the main product image"
             />
           </div>
-          
+
           <div className="flex justify-end space-x-4">
             <Button
               variant="outline"

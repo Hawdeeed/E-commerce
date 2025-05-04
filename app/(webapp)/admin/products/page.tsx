@@ -1,20 +1,19 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { getAllProducts, ProductComplete } from '../../../../lib/api';
+import { getAllProducts } from '../../../../lib/api';
 import { supabase } from '../../../../lib/supabase';
 import Loader from '../../../../app/components/Loader';
 import Button from '../../../components/Button';
 import Link from 'next/link';
 import { ROUTES } from '@/app/share/routes';
 import Image from 'next/image';
-
-type Product = ProductComplete;
+import { Product } from '@/app/share/types';
 
 export default function ProductsPage() {
   const router = useRouter();
-  const [products, setProducts] = useState<ProductComplete[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -23,34 +22,34 @@ export default function ProductsPage() {
   const [editingProduct, setEditingProduct] = useState<string | null>(null);
   const [editData, setEditData] = useState<{ [key: string]: any }>({});
 
-  useEffect(() => {
-    fetchProducts();
-  }, [currentPage, searchQuery]);
-
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       setLoading(true);
       const allProducts = await getAllProducts();
-
+  
       const filteredProducts = searchQuery
         ? allProducts.filter(product =>
-          product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          product.description?.toLowerCase().includes(searchQuery.toLowerCase())
-        )
+            product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            product.description?.toLowerCase().includes(searchQuery.toLowerCase())
+          )
         : allProducts;
-
+  
       setTotalPages(Math.ceil(filteredProducts.length / 10));
-
+  
       const startIndex = (currentPage - 1) * 10;
       const paginatedProducts = filteredProducts.slice(startIndex, startIndex + 10);
-
+  
       setProducts(paginatedProducts);
     } catch (error) {
       console.error('Error fetching products:', error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, searchQuery, getAllProducts]); // Include all dependencies
+  
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
 
   const handleEdit = (productId: string) => {
     const product = products.find(p => p.id === productId);

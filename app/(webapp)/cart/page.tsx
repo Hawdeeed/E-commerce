@@ -15,31 +15,26 @@ export default function CartPage() {
   const [discount, setDiscount] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Shipping cost calculation (free shipping over 5000)
   const shippingCost = subtotal > 5000 ? 0 : 250;
-  
-  // Total cost calculation
+
   const totalCost = subtotal + shippingCost - discount;
 
   const handleApplyCoupon = () => {
-    // Reset previous error
     setCouponError('');
-    
-    // Simple coupon validation
+
     if (!couponCode) {
       setCouponError('Please enter a coupon code');
       return;
     }
-    
-    // Example coupon codes
+
     const validCoupons = {
       'WELCOME10': 10,
       'SUMMER20': 20,
       'SALE30': 30
     };
-    
+
     const couponUpperCase = couponCode.toUpperCase();
-    
+
     if (validCoupons[couponUpperCase as keyof typeof validCoupons]) {
       const discountPercent = validCoupons[couponUpperCase as keyof typeof validCoupons];
       const discountAmount = (subtotal * discountPercent) / 100;
@@ -52,10 +47,9 @@ export default function CartPage() {
 
   const handleCheckout = () => {
     if (items.length === 0) return;
-    
+
     setIsProcessing(true);
-    
-    // Simulate checkout process
+
     setTimeout(() => {
       setIsProcessing(false);
       router.push(ROUTES.checkout);
@@ -72,7 +66,7 @@ export default function CartPage() {
             </svg>
           </div>
           <h2 className="text-2xl font-semibold mb-4">Your cart is empty</h2>
-          <p className="text-gray-500 mb-8">Looks like you haven't added any items to your cart yet.</p>
+          <p className="text-gray-500 mb-8">Looks like you haven&apos;t added any items to your cart yet.</p>
           <Link href={ROUTES.root} className="bg-gray-900 text-white px-6 py-3 rounded-md hover:bg-gray-800 transition-colors">
             Continue Shopping
           </Link>
@@ -84,15 +78,14 @@ export default function CartPage() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
       <h1 className="text-2xl font-bold mb-8">Shopping Cart</h1>
-      
+
       <div className="flex flex-col lg:flex-row gap-8">
-        {/* Cart Items */}
         <div className="lg:w-2/3">
           <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-6">
             <div className="p-6 border-b border-gray-200">
               <div className="flex justify-between items-center">
                 <h2 className="text-lg font-semibold">Cart Items ({items.length})</h2>
-                <button 
+                <button
                   onClick={clearCart}
                   className="text-sm text-red-600 hover:text-red-800"
                 >
@@ -100,11 +93,10 @@ export default function CartPage() {
                 </button>
               </div>
             </div>
-            
+
             <div className="divide-y divide-gray-200">
               {items.map((item) => (
                 <div key={item.id} className="p-6 flex flex-col sm:flex-row items-start sm:items-center">
-                  {/* Product Image */}
                   <div className="w-full sm:w-20 h-20 flex-shrink-0 mb-4 sm:mb-0">
                     <Image
                       src={item.image || '/placeholder-product.jpg'}
@@ -114,8 +106,7 @@ export default function CartPage() {
                       className="w-20 h-20 object-cover rounded-md"
                     />
                   </div>
-                  
-                  {/* Product Details */}
+
                   <div className="flex-1 sm:ml-6">
                     <div className="flex flex-col sm:flex-row sm:justify-between">
                       <div>
@@ -129,10 +120,10 @@ export default function CartPage() {
                         <p className="text-base font-medium text-gray-900">PKR {item.price.toLocaleString()}</p>
                       </div>
                     </div>
-                    
+
                     <div className="flex justify-between items-center mt-4">
                       <div className="flex items-center border border-gray-300 rounded-md">
-                        <button 
+                        <button
                           onClick={() => updateQuantity(item.id, item.quantity - 1)}
                           className="px-3 py-1 text-gray-600 hover:bg-gray-100"
                           disabled={item.quantity <= 1}
@@ -140,15 +131,15 @@ export default function CartPage() {
                           -
                         </button>
                         <span className="px-3 py-1 text-gray-800">{item.quantity}</span>
-                        <button 
+                        <button
                           onClick={() => updateQuantity(item.id, item.quantity + 1)}
                           className="px-3 py-1 text-gray-600 hover:bg-gray-100"
                         >
                           +
                         </button>
                       </div>
-                      
-                      <button 
+
+                      <button
                         onClick={() => removeItem(item.id)}
                         className="text-sm text-gray-500 hover:text-red-600"
                       >
@@ -162,7 +153,7 @@ export default function CartPage() {
               ))}
             </div>
           </div>
-          
+
           <div className="flex justify-between">
             <Link href="/" className="text-gray-600 hover:text-gray-900 flex items-center">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -172,34 +163,33 @@ export default function CartPage() {
             </Link>
           </div>
         </div>
-        
-        {/* Order Summary */}
+
         <div className="lg:w-1/3">
           <div className="bg-white rounded-lg shadow-sm overflow-hidden sticky top-20">
             <div className="p-6 border-b border-gray-200">
               <h2 className="text-lg font-semibold">Order Summary</h2>
             </div>
-            
+
             <div className="p-6 space-y-4">
               <div className="flex justify-between">
                 <span className="text-gray-600">Subtotal</span>
                 <span className="font-medium">PKR {subtotal.toLocaleString()}</span>
               </div>
-              
+
               <div className="flex justify-between">
                 <span className="text-gray-600">Shipping</span>
                 <span className="font-medium">
                   {shippingCost === 0 ? 'Free' : `PKR ${shippingCost.toLocaleString()}`}
                 </span>
               </div>
-              
+
               {discount > 0 && (
                 <div className="flex justify-between text-green-600">
                   <span>Discount</span>
                   <span className="font-medium">- PKR {discount.toLocaleString()}</span>
                 </div>
               )}
-              
+
               <div className="border-t border-gray-200 pt-4 mt-4">
                 <div className="flex justify-between font-semibold">
                   <span>Total</span>
@@ -209,7 +199,7 @@ export default function CartPage() {
                   Tax included and shipping calculated at checkout
                 </p>
               </div>
-              
+
               <div className="mt-6">
                 <div className="flex items-center mb-4">
                   <input
@@ -229,7 +219,7 @@ export default function CartPage() {
                 {couponError && (
                   <p className="text-red-600 text-sm mb-4">{couponError}</p>
                 )}
-                
+
                 <button
                   onClick={handleCheckout}
                   disabled={isProcessing}
@@ -248,7 +238,7 @@ export default function CartPage() {
                   )}
                 </button>
               </div>
-              
+
               <div className="mt-6">
                 <p className="text-sm text-gray-500 mb-2">We accept:</p>
                 <div className="flex space-x-2">
