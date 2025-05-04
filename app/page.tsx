@@ -65,21 +65,19 @@ export default function Home() {
 
         <div className="my-8">
           <div className="flex justify-evenly space-x-4 overflow-x-auto py-4 scrollbar-hide">
-            {categories.slice(0, 3).map(category => (
+            {categories.map(category => (
               <CategoryCard key={category.id} category={category} />
             ))}
           </div>
         </div>
 
-        <div className="my-8">
+        {/* <div className="my-8">
           <div className="flex justify-evenly space-x-4 overflow-x-auto py-4 scrollbar-hide">
-            {categories.slice(0, 3).map(category => (
+            {categories.slice(0, 4).map(category => (
               <CategoryCard key={category.id} category={category} />
             ))}
           </div>
-        </div>
-
-
+        </div> */}
 
         <div className="my-8">
           <div className="mb-4">

@@ -103,3 +103,18 @@ export async function getAllCategories() {
 
   return data;
 }
+
+// Fetch all orders
+export async function getAllOrders() {
+  const { data, error } = await supabase
+    .from('orders')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching orders:', error);
+    return [];
+  }
+
+  return data;
+}

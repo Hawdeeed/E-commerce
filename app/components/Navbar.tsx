@@ -25,55 +25,30 @@ const Navbar: React.FC = () => {
             </div>
           </div>
 
-          {/* Right navigation */}
           <div className="flex items-center space-x-4">
             <CartIcon />
           </div>
         </div>
-      </div>
 
-      {/* Location bar */}
-      <div className="bg-gray-50 py-2 text-center text-sm border-t border-gray-100">
-        <span className="text-gray-600">Click here to select delivery location</span>
-      </div>
-
-      {/* Categories navigation */}
-      <div className="container mx-auto px-4 py-2 border-t border-gray-100">
-        <ul className="flex space-x-6 overflow-x-auto scrollbar-hide text-sm">
-          <li className="whitespace-nowrap">
-            <Link href="/all" className="text-gray-800 hover:text-gray-600">All</Link>
-          </li>
-          <li className="whitespace-nowrap">
-            <Link href="/women" className="text-gray-800 hover:text-gray-600">Women</Link>
-          </li>
-          <li className="whitespace-nowrap">
-            <Link href="/men" className="text-gray-800 hover:text-gray-600">Men</Link>
-          </li>
-          <li className="whitespace-nowrap">
-            <Link href="/kids" className="text-gray-800 hover:text-gray-600">Kids</Link>
-          </li>
-          <li className="whitespace-nowrap">
-            <Link href="/bridals" className="text-gray-800 hover:text-gray-600">Bridals</Link>
-          </li>
-          <li className="whitespace-nowrap">
-            <Link href="/top-creations" className="text-gray-800 hover:text-gray-600">Top Creations</Link>
-          </li>
-          <li className="whitespace-nowrap">
-            <Link href="/orders" className="text-gray-800 hover:text-gray-600">Orders</Link>
-          </li>
-          <li className="whitespace-nowrap">
-            <Link href="/wishlist" className="text-gray-800 hover:text-gray-600">Wishlist</Link>
-          </li>
-          <li className="whitespace-nowrap">
-            <Link href="/become-a-seller" className="text-gray-800 hover:text-gray-600">Become a Seller</Link>
-          </li>
-          <li className="whitespace-nowrap">
-            <Link href="/blogs" className="text-gray-800 hover:text-gray-600">Blogs</Link>
-          </li>
-          <li className="whitespace-nowrap">
-            <Link href="/help-center" className="text-gray-800 hover:text-gray-600">Help center</Link>
-          </li>
-        </ul>
+        <div className="container mx-auto px-4 py-2 border-t border-gray-100">
+          <ul className="flex space-x-6 overflow-x-auto scrollbar-hide text-sm">
+            <li className="whitespace-nowrap">
+              <Link href="/all" className="text-gray-800 hover:text-gray-600">All</Link>
+            </li>
+            <li className="whitespace-nowrap">
+              <Link href="/women" className="text-gray-800 hover:text-gray-600">Women</Link>
+            </li>
+            <li className="whitespace-nowrap">
+              <Link href="/men" className="text-gray-800 hover:text-gray-600">Men</Link>
+            </li>
+            <li className="whitespace-nowrap">
+              <Link href="/kids" className="text-gray-800 hover:text-gray-600">Kids</Link>
+            </li>
+            <li className="whitespace-nowrap">
+              <Link href="/bridals" className="text-gray-800 hover:text-gray-600">Bridals</Link>
+            </li>
+          </ul>
+        </div>
       </div>
     </nav>
   );

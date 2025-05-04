@@ -1,7 +1,7 @@
 // 'use client';
 
 import { Metadata } from "next";
-import AdminSidebar from "../../../app/components/admin/AdminSidebar";
+import AdminSidebar from "../../components/AdminSidebar";
 
 export const metadata: Metadata = {
     title: "Admin Portal",

@@ -4,8 +4,9 @@ import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../../../../lib/supabase';
 import Loader from '../../../../../app/components/Loader';
-import Button from '../../../../../app/components/ui/Button';
+import Button from '../../../../components/Button';
 import Link from 'next/link';
+import { ROUTES } from '@/app/share/routes';
 
 interface OrderItem {
   id: string;
@@ -203,7 +204,7 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
   };
 
   if (loading) {
-    return <Loader size="large" fullScreen text="" />;
+    return <Loader size="small" fullScreen text="" />;
   }
 
   if (!order) {
@@ -223,7 +224,7 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
             </div>
           </div>
         </div>
-        <Button variant="primary" onClick={() => router.push('/admin/orders')}>
+        <Button variant="primary" onClick={() => router.push(ROUTES.adminOrder)}>
           Back to Orders
         </Button>
       </div>
@@ -237,7 +238,7 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
           <h1 className="text-2xl font-bold text-gray-900">Order #{order.id.substring(0, 8)}</h1>
           <p className="text-sm text-gray-500">Placed on {formatDate(order.created_at)}</p>
         </div>
-        <Button variant="outline" onClick={() => router.push('/admin/orders')}>
+        <Button variant="outline" onClick={() => router.push(ROUTES.adminOrder)}>
           Back to Orders
         </Button>
       </div>

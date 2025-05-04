@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getAllProducts, getAllCategories } from '../../../lib/api';
+import { getAllProducts, getAllCategories, getAllOrders } from '../../../lib/api';
 import Loader from '../../../app/components/Loader';
 import Link from 'next/link';
+import { ROUTES } from '@/app/share/routes';
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -19,12 +20,13 @@ export default function AdminDashboard() {
       try {
         const products = await getAllProducts();
         const categories = await getAllCategories();
+        const orders = await getAllOrders();
         
         setStats({
           products: products.length,
           categories: categories.length,
-          orders: 12, // Placeholder data
-          revenue: 25000 // Placeholder data
+          orders: orders.length,
+          revenue: orders.reduce((total: number, order: any) => total + order.total_amount, 0)
         });
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
@@ -37,7 +39,7 @@ export default function AdminDashboard() {
   }, []);
 
   if (loading) {
-    return <Loader size="large" fullScreen text="" />;
+    return <Loader size="small" fullScreen text="" />;
   }
 
   const statCards = [
@@ -50,7 +52,7 @@ export default function AdminDashboard() {
         </svg>
       ),
       color: 'bg-blue-500',
-      link: '/admin/products'
+      link: ROUTES.adminProduct
     },
     {
       title: 'Total Categories',
@@ -61,7 +63,7 @@ export default function AdminDashboard() {
         </svg>
       ),
       color: 'bg-green-500',
-      link: '/admin/categories'
+      link: ROUTES.adminCategory
     },
     {
       title: 'Total Orders',
@@ -72,7 +74,7 @@ export default function AdminDashboard() {
         </svg>
       ),
       color: 'bg-purple-500',
-      link: '/admin/orders'
+      link: ROUTES.adminOrder
     },
     {
       title: 'Total Revenue',
@@ -83,7 +85,7 @@ export default function AdminDashboard() {
         </svg>
       ),
       color: 'bg-yellow-500',
-      link: '/admin/orders'
+      link: ROUTES.adminOrder
     }
   ];
 
@@ -96,7 +98,7 @@ export default function AdminDashboard() {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
         </svg>
       ),
-      link: '/admin/products/add'
+      link: ROUTES.adminAddProduct
     },
     {
       title: 'Add New Category',
@@ -106,7 +108,7 @@ export default function AdminDashboard() {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
         </svg>
       ),
-      link: '/admin/categories/add'
+      link: ROUTES.adminAddCategory
     },
     {
       title: 'View Orders',
@@ -116,7 +118,7 @@ export default function AdminDashboard() {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
         </svg>
       ),
-      link: '/admin/orders'
+      link: ROUTES.adminOrder
     }
   ];
 

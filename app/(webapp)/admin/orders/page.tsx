@@ -4,8 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../../../lib/supabase';
 import Loader from '../../../../app/components/Loader';
-import Button from '../../../../app/components/ui/Button';
+import Button from '../../../components/Button';
 import Link from 'next/link';
+import { ROUTES } from '@/app/share/routes';
 
 interface Order {
   id: string;
@@ -155,7 +156,7 @@ export default function OrdersPage() {
   };
 
   if (loading && orders.length === 0) {
-    return <Loader size="large" fullScreen text="" />;
+    return <Loader size="small" fullScreen text="" />;
   }
 
   return (
@@ -248,7 +249,7 @@ export default function OrdersPage() {
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex justify-end space-x-2">
                         <Link
-                          href={`/admin/orders/${order.id}`}
+                          href={`${ROUTES.adminOrder}/${order.id}`}
                           className="text-indigo-600 hover:text-indigo-900 transition-colors duration-150"
                         >
                           View

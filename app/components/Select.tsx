@@ -12,6 +12,7 @@ interface SelectProps extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>
   helperText?: string;
   options: SelectOption[];
   onChange?: (value: string) => void;
+  isMulti?: boolean;
 }
 
 const Select: React.FC<SelectProps> = ({
@@ -23,6 +24,7 @@ const Select: React.FC<SelectProps> = ({
   className = '',
   onChange,
   value,
+  isMulti,
   ...props
 }) => {
   const baseStyles = 'rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-all duration-200';
@@ -50,6 +52,7 @@ const Select: React.FC<SelectProps> = ({
         }}
         value={value}
         onChange={handleChange}
+        multiple={isMulti}
         {...props}
       >
         {options.map((option) => (

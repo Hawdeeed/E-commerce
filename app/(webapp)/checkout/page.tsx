@@ -3,9 +3,10 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useCart } from '../../context/CartContext';
+import { useCart } from '../../components/CartContext';
 import { supabase } from '../../../lib/supabase';
 import Loader from '../../components/Loader';
+import { ROUTES } from '@/app/share/routes';
 
 interface FormData {
   firstName: string;
@@ -47,7 +48,7 @@ export default function CheckoutPage() {
   useEffect(() => {
     // Redirect to cart if cart is empty
     if (items.length === 0 && !orderPlaced) {
-      router.push('/cart');
+      router.push(ROUTES.cart);
     }
   }, [items, router, orderPlaced]);
 
@@ -127,7 +128,7 @@ export default function CheckoutPage() {
       if (orderError) throw orderError;
 
       // Create order items
-      const orderItems = items.map(item => ({
+      const orderItems = items.map((item: any) => ({
         order_id: order.id,
         product_id: item.productId,
         product_variant_id: item.variantId || null,
@@ -186,7 +187,7 @@ export default function CheckoutPage() {
   }
 
   if (items.length === 0 && !orderPlaced) {
-    return <Loader size="large" fullScreen text="Redirecting to cart..." />;
+    return <Loader size="small" fullScreen text="" />;
   }
 
   return (
@@ -449,7 +450,7 @@ export default function CheckoutPage() {
 
             <div className="p-6">
               <div className="space-y-4 mb-6">
-                {items.map((item) => (
+                {items.map((item: any) => (
                   <div key={item.id} className="flex items-center">
                     <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
                       <img

@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useCart } from '../../components/CartContext';
+import { ROUTES } from '@/app/share/routes';
 
 export default function CartPage() {
   const router = useRouter();
@@ -57,7 +57,7 @@ export default function CartPage() {
     // Simulate checkout process
     setTimeout(() => {
       setIsProcessing(false);
-      router.push('/checkout');
+      router.push(ROUTES.checkout);
     }, 1000);
   };
 
@@ -72,7 +72,7 @@ export default function CartPage() {
           </div>
           <h2 className="text-2xl font-semibold mb-4">Your cart is empty</h2>
           <p className="text-gray-500 mb-8">Looks like you haven't added any items to your cart yet.</p>
-          <Link href="/" className="bg-gray-900 text-white px-6 py-3 rounded-md hover:bg-gray-800 transition-colors">
+          <Link href={ROUTES.root} className="bg-gray-900 text-white px-6 py-3 rounded-md hover:bg-gray-800 transition-colors">
             Continue Shopping
           </Link>
         </div>

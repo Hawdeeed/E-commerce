@@ -18,10 +18,10 @@ export default function ClientLayout({
     return (
         <CartProvider>
             <Navbar />
-            <div className="w-full pt-[180px]">
+            <div className="w-full pt-[120px]">
                 <div className="flex flex-col md:flex-row gap-6">
-                    {/* <Sidebar filterOptions={[]} /> */}
-                    <main className="w-full">
+                    <Sidebar filterOptions={[]} />
+                    <main className="w-full md:w-4/5">
                         {children}
                     </main>
                 </div>

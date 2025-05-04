@@ -5,8 +5,9 @@ import { useRouter } from 'next/navigation';
 import { getAllCategories } from '../../../../lib/api';
 import { supabase } from '../../../../lib/supabase';
 import Loader from '../../../../app/components/Loader';
-import Button from '../../../../app/components/ui/Button';
+import Button from '../../../components/Button';
 import Link from 'next/link';
+import { ROUTES } from '@/app/share/routes';
 
 export default function CategoriesPage() {
   const router = useRouter();
@@ -105,7 +106,7 @@ export default function CategoriesPage() {
   };
 
   if (loading && categories.length === 0) {
-    return <Loader size="large" fullScreen text="" />;
+    return <Loader size="small" fullScreen text="" />;
   }
 
   return (
@@ -114,7 +115,7 @@ export default function CategoriesPage() {
         <h1 className="text-2xl font-bold text-gray-900">Categories</h1>
         <Button
           variant="primary"
-          onClick={() => router.push('/admin/categories/add')}
+          onClick={() => router.push(ROUTES.adminAddCategory)}
         >
           Add New Category
         </Button>

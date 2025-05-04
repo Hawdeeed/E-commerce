@@ -54,7 +54,7 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
   }, [productId]);
 
   if (loading) {
-    return <Loader size="large" fullScreen text="" />;
+    return <Loader size="small" fullScreen text="" />;
   }
 
   if (error || !product) {
@@ -174,46 +174,57 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
                 className="w-full h-auto"
               />
             </div>
-            <div className="flex mb-4">
-              <div className="mr-4">
-                <span className="font-bold">Available Colors:</span>
-                <div className="flex mt-2">
-                  {product.variants
-                    ?.map(v => v.color)
-                    .filter((color, index, self) => color && self.indexOf(color) === index)
-                    .map((color, index) => (
-                      <button
-                        key={index}
-                        className={`w-6 h-6 rounded-full mr-2 ${selectedColor === color ? 'ring-2 ring-offset-2 ring-gray-800' : ''}`}
-                        style={{ backgroundColor: color || '#000' }}
-                        onClick={() => setSelectedColor(color || '')}
-                      ></button>
-                    )) || (
-                      <span className="text-sm text-gray-500">No color options available</span>
-                    )}
-                </div>
-              </div>
-            </div>
-            <div className="flex mb-4">
+            <div className="space-y-4">
               <div>
-                <span className="font-bold">Size:</span>
-                <div className="flex mt-2">
+                <span className="font-bold">Sizes:</span>
+                <div className="flex flex-wrap gap-2 mt-2">
                   {product.variants
-                    ?.map(v => v.size)
-                    .filter((size, index, self) => size && self.indexOf(size) === index)
-                    .map((size, index) => (
+                    ?.filter(v => v.size)
+                    .map(v => v.size)
+                    .filter((size, index, self) => self.indexOf(size) === index)
+                    .map((size) => (
                       <button
-                        key={index}
-                        className={`border-2 ${selectedSize === size ? 'border-gray-500' : 'border-gray-300'} rounded-md px-3 py-1 mr-2`}
-                        onClick={() => setSelectedSize(size || '')}
+                        key={size}
+                        className={`px-4 py-2 rounded-full border-2 ${
+                          selectedSize === size
+                            ? 'border-gray-800 bg-gray-50'
+                            : 'border-gray-300'
+                        }`}
+                        onClick={() => {
+                          setSelectedSize(size || '');
+                          // Reset color selection when size changes
+                          setSelectedColor('');
+                        }}
                       >
                         {size}
                       </button>
-                    )) || (
-                      <span className="text-sm text-gray-500">No size options available</span>
-                    )}
+                    ))}
                 </div>
               </div>
+
+              {selectedSize && (
+                <div>
+                  <span className="font-bold">Available Colors:</span>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {product.variants
+                      ?.filter(v => v.size === selectedSize)
+                      .flatMap(v => v.color || [])
+                      .filter((color, index, self) => self.indexOf(color) === index)
+                      .map((color) => (
+                        <button
+                          key={color}
+                          className={`w-6 h-6 rounded-full ${
+                            selectedColor === color
+                              ? 'ring-2 ring-offset-2 ring-gray-800'
+                              : ''
+                          }`}
+                          style={{ backgroundColor: color || '#000' }}
+                          onClick={() => setSelectedColor(color)}
+                        ></button>
+                      ))}
+                  </div>
+                </div>
+              )}
             </div>
             <div className="mb-4">
               <span className="font-bold">Description:</span>

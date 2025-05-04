@@ -4,12 +4,12 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { getAllCategories } from '../../../../../lib/api';
 import { supabase } from '../../../../../lib/supabase';
-import Loader from '../../../../../app/components/Loader';
-import Input from '../../../../../app/components/ui/Input';
-import TextArea from '../../../../../app/components/ui/TextArea';
-import Select from '../../../../../app/components/ui/Select';
-import Button from '../../../../../app/components/ui/Button';
-import FileUpload from '../../../../../app/components/ui/FileUpload';
+import Input from '../../../../components/Input';
+import TextArea from '../../../../components/TextArea';
+import Select from '../../../../components/Select';
+import Button from '../../../../components/Button';
+import FileUpload from '../../../../components/FileUpload';
+import { ROUTES } from '@/app/share/routes';
 
 interface FormData {
   name: string;
@@ -22,11 +22,15 @@ interface FormData {
 }
 
 interface Variant {
+  id?: string;
+  product_id?: string;
   name: string;
   size: string;
-  color: string;
+  color: string[];
   price: string;
   sku: string;
+  sale_price?: string;
+  in_stock?: boolean;
 }
 
 export default function AddProductPage() {
@@ -42,7 +46,7 @@ export default function AddProductPage() {
   });
   
   const [variants, setVariants] = useState<Variant[]>([
-    { name: '', size: '', color: '', price: '', sku: '' }
+    { name: '', size: '', color: [], price: '', sku: '' }
   ]);
   
   const [files, setFiles] = useState<File[]>([]);
@@ -76,14 +80,14 @@ export default function AddProductPage() {
     }));
   };
 
-  const handleVariantChange = (index: number, field: keyof Variant, value: string) => {
+  const handleVariantChange = (index: number, field: keyof Variant, value: string | string[] | boolean) => {
     const newVariants = [...variants];
-    newVariants[index][field] = value;
+    newVariants[index][field] = value as never;
     setVariants(newVariants);
   };
 
   const addVariant = () => {
-    setVariants([...variants, { name: '', size: '', color: '', price: '', sku: '' }]);
+    setVariants([...variants, { name: '', size: '', color: [], price: '', sku: '' }]);
   };
 
   const removeVariant = (index: number) => {
@@ -122,36 +126,34 @@ export default function AddProductPage() {
     
     try {
       // 1. Insert product
-      const { data: productData, error: productError } = await supabase
+      const { data: product, error: productError } = await supabase
         .from('products')
         .insert({
           name: formData.name,
           description: formData.description,
-          price: Number(formData.price),
-          sale_price: formData.sale_price ? Number(formData.sale_price) : null,
           category_id: formData.category_id,
+          price: formData.price ? Number(formData.price) : null,
+          sale_price: formData.sale_price ? Number(formData.sale_price) : null,
           in_stock: formData.in_stock,
-          featured: formData.featured,
         })
-        .select();
-      
+        .select('id')
+        .single();
+
       if (productError) throw productError;
-      
-      const productId = productData[0].id;
       
       // 2. Insert variants
       const variantsToInsert = variants
-        .filter(v => v.name.trim() || v.size.trim() || v.color.trim())
+        .filter(v => v.name.trim() || v.size.trim() || v.color.length > 0)
         .map(v => ({
-          product_id: productId,
+          product_id: product.id,
           name: v.name,
-          size: v.size || null,
-          color: v.color || null,
+          size: v.size,
+          color: v.color,
           price: v.price ? Number(v.price) : null,
           sku: v.sku || null,
-          in_stock: true,
+          in_stock: true
         }));
-      
+
       if (variantsToInsert.length > 0) {
         const { error: variantsError } = await supabase
           .from('product_variants')
@@ -165,7 +167,7 @@ export default function AddProductPage() {
         for (let i = 0; i < files.length; i++) {
           const file = files[i];
           const fileExt = file.name.split('.').pop();
-          const fileName = `${productId}_${i}.${fileExt}`;
+          const fileName = `${product.id}_${i}.${fileExt}`;
           const filePath = `products/${fileName}`;
           
           // Upload file to storage
@@ -184,7 +186,7 @@ export default function AddProductPage() {
           const { error: imageError } = await supabase
             .from('product_images')
             .insert({
-              product_id: productId,
+              product_id: product.id,
               url: urlData.publicUrl,
               alt_text: formData.name,
               is_primary: i === 0, // First image is primary
@@ -198,7 +200,7 @@ export default function AddProductPage() {
       
       // Reset form after successful submission
       setTimeout(() => {
-        router.push('/admin/products');
+        router.push(ROUTES.adminProduct);
       }, 2000);
       
     } catch (error) {
@@ -208,17 +210,13 @@ export default function AddProductPage() {
     }
   };
 
-  if (loading) {
-    return <Loader size="large" fullScreen text="" />;
-  }
-
   return (
     <div className="max-w-4xl mx-auto">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Add New Product</h1>
         <Button
           variant="outline"
-          onClick={() => router.push('/admin/products')}
+          onClick={() => router.push(ROUTES.adminProduct)}
         >
           Cancel
         </Button>
@@ -353,16 +351,9 @@ export default function AddProductPage() {
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <Input
-                    label="Variant Name"
+                    label="Name"
                     value={variant.name}
                     onChange={(e) => handleVariantChange(index, 'name', e.target.value)}
-                    fullWidth
-                  />
-                  
-                  <Input
-                    label="SKU"
-                    value={variant.sku}
-                    onChange={(e) => handleVariantChange(index, 'sku', e.target.value)}
                     fullWidth
                   />
                   
@@ -373,18 +364,43 @@ export default function AddProductPage() {
                     fullWidth
                   />
                   
-                  <Input
-                    label="Color"
-                    value={variant.color}
-                    onChange={(e) => handleVariantChange(index, 'color', e.target.value)}
-                    fullWidth
-                  />
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">Colors</label>
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+                      {['Red', 'Blue', 'Green', 'Yellow', 'Black', 'White', 'Gray', 'Pink', 'Purple', 'Orange'].map((color) => (
+                        <div key={color} className="flex items-center">
+                          <input
+                            type="checkbox"
+                            id={`color-${index}-${color}`}
+                            checked={variant.color?.includes(color) || false}
+                            onChange={(e) => {
+                              const newColors = e.target.checked
+                                ? [...(variant.color || []), color]
+                                : variant.color?.filter(c => c !== color) || [];
+                              handleVariantChange(index, 'color', newColors);
+                            }}
+                            className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                          />
+                          <label htmlFor={`color-${index}-${color}`} className="ml-2 block text-sm text-gray-900">
+                            {color}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                   
                   <Input
                     label="Price (leave empty to use main price)"
                     type="number"
                     value={variant.price}
                     onChange={(e) => handleVariantChange(index, 'price', e.target.value)}
+                    fullWidth
+                  />
+                  
+                  <Input
+                    label="SKU"
+                    value={variant.sku}
+                    onChange={(e) => handleVariantChange(index, 'sku', e.target.value)}
                     fullWidth
                   />
                 </div>
@@ -407,7 +423,7 @@ export default function AddProductPage() {
           <div className="flex justify-end space-x-4">
             <Button
               variant="outline"
-              onClick={() => router.push('/admin/products')}
+              onClick={() => router.push(ROUTES.adminProduct)}
               type="button"
             >
               Cancel

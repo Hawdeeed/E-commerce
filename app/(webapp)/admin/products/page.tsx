@@ -4,10 +4,10 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { getAllProducts, ProductComplete } from '../../../../lib/api';
 import { supabase } from '../../../../lib/supabase';
-import { ProductWithImages } from '../../../../lib/api';
 import Loader from '../../../../app/components/Loader';
-import Button from '../../../../app/components/ui/Button';
+import Button from '../../../components/Button';
 import Link from 'next/link';
+import { ROUTES } from '@/app/share/routes';
 
 type Product = ProductComplete;
 
@@ -154,7 +154,7 @@ export default function ProductsPage() {
   };
 
   if (loading && products.length === 0) {
-    return <Loader size="large" fullScreen text="" />;
+    return <Loader size="small" fullScreen text="" />;
   }
 
   return (
@@ -163,7 +163,7 @@ export default function ProductsPage() {
         <h1 className="text-2xl font-bold text-gray-900">Products</h1>
         <Button
           variant="primary"
-          onClick={() => router.push('/admin/products/add')}
+          onClick={() => router.push(ROUTES.adminAddProduct)}
         >
           Add New Product
         </Button>
