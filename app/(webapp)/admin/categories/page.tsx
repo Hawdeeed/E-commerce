@@ -9,11 +9,11 @@ import Button from '../../../components/Button';
 import Link from 'next/link';
 import { ROUTES } from '@/app/share/routes';
 import Image from 'next/image';
-import { CategoryResponse } from '@/app/share/types';
+import { Category } from '@/app/share/types';
 
 export default function CategoriesPage() {
   const router = useRouter();
-  const [categories, setCategories] = useState<CategoryResponse[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -25,7 +25,7 @@ export default function CategoriesPage() {
       
       // Filter categories by search query
       const filteredCategories = searchQuery 
-        ? allCategories.filter((category: CategoryResponse) => 
+        ? allCategories.filter((category: Category) => 
             category.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             category.description?.toLowerCase().includes(searchQuery.toLowerCase())
           )

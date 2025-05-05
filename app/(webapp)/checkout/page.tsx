@@ -8,6 +8,7 @@ import { supabase } from '../../../lib/supabase';
 import Loader from '../../components/Loader';
 import { ROUTES } from '@/app/share/routes';
 import Image from 'next/image';
+import { CartItem } from '@/app/share/types';
 
 interface FormData {
   firstName: string;
@@ -40,14 +41,11 @@ export default function CheckoutPage() {
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
 
-  // Shipping cost calculation (free shipping over 5000)
   const shippingCost = subtotal > 5000 ? 0 : 250;
 
-  // Total cost calculation
   const totalCost = subtotal + shippingCost;
 
   useEffect(() => {
-    // Redirect to cart if cart is empty
     if (items.length === 0 && !orderPlaced) {
       router.push(ROUTES.cart);
     }
@@ -60,7 +58,6 @@ export default function CheckoutPage() {
       [name]: value
     });
 
-    // Clear error when field is edited
     if (errors[name as keyof typeof errors]) {
       setErrors({
         ...errors,
@@ -129,7 +126,7 @@ export default function CheckoutPage() {
       if (orderError) throw orderError;
 
       // Create order items
-      const orderItems = items.map((item: any) => ({
+      const orderItems = items.map((item: CartItem) => ({
         order_id: order.id,
         product_id: item.productId,
         product_variant_id: item.variantId || null,
@@ -451,7 +448,7 @@ export default function CheckoutPage() {
 
             <div className="p-6">
               <div className="space-y-4 mb-6">
-                {items.map((item: any) => (
+                {items.map((item: CartItem) => (
                   <div key={item.id} className="flex items-center">
                     <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
                       <Image
@@ -465,9 +462,9 @@ export default function CheckoutPage() {
                     <div className="ml-4 flex-1">
                       <h3 className="text-sm text-gray-900">{item.name}</h3>
                       <p className="text-sm text-gray-500">
-                        {item.size && `Size: ${item.size}`}
-                        {item.size && item.color && ' / '}
-                        {item.color && `Color: ${item.color}`}
+                        {item.variant?.size && `Size: ${item.variant.size}`}
+                        {item.variant?.size && item.variant.color && ' / '}
+                        {item.variant?.color && `Color: ${item.variant.color}`}
                       </p>
                       <div className="flex justify-between text-sm">
                         <p className="text-gray-500">Qty {item.quantity}</p>

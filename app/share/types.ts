@@ -1,21 +1,89 @@
 export interface Category {
   id: string;
   name: string;
-  image_url?: string;
-  description?: string;
+  description?: string | null;
+  image_url?: string | null;
+  created_at?: string;
+  updated_at?: string | null;
 }
 
 export interface Product {
   id: string;
   name: string;
+  description?: string | null;
   price: number;
-  discountPercentage?: number;
-  image: string;
-  category: string;
-  items?: number;
-  description?: string;
-  images?: { url: string }[];
-  category_id?: string | null;
+  sale_price?: number | null;
+  category_id: string;
+  image_url?: string | null;
+  in_stock?: boolean;
+  featured?: boolean;
+  created_at?: string;
+  updated_at?: string | null;
+  images?: ProductImage[];
+  variants?: ProductVariant[];
+  category?: Category;
+}
+
+export interface ProductImage {
+  id: string;
+  product_id: string;
+  url: string;
+  alt_text?: string | null;
+  is_primary?: boolean;
+  created_at?: string;
+  updated_at?: string | null;
+}
+
+export interface ProductVariant {
+  id: string;
+  product_id: string;
+  name: string;
+  sku?: string | null;
+  price?: number | null;
+  sale_price?: number | null;
+  size?: string | null;
+  color?: string[] | null;
+  in_stock?: boolean;
+  created_at?: string;
+  updated_at?: string | null;
+}
+
+export interface Order {
+  id: string;
+  user_id?: string | null;
+  status: string;
+  total_amount: number;
+  shipping_address?: Address | null;
+  billing_address?: Address | null;
+  payment_method?: string | null;
+  customer_email?: string | null;
+  customer_name?: string | null;
+  customer_phone?: string | null;
+  // Extended properties
+  items?: OrderItem[];
+  tracking_number?: string | null;
+  notes?: string | null;
+}
+
+export interface OrderItem {
+  id: string;
+  order_id: string;
+  product_id: string;
+  product_variant_id?: string | null;
+  quantity: number;
+  unit_price: number;
+  total_price: number;
+  created_at?: string;
+  updated_at?: string | null;
+  product?: {
+    name: string;
+    images: { url: string }[];
+  };
+  variant?: {
+    name: string;
+    size?: string;
+    color?: string[];
+  } | null;
 }
 
 export interface Banner {
@@ -28,59 +96,36 @@ export interface Banner {
   buttonLink: string;
 }
 
-export interface OrderItem {
-  id: string;
-  order_id: string;
-  product_id: string;
-  variant_id: string | null;
-  quantity: number;
-  price: number;
-  unit_price?: number;
-  product: {
-    name: string;
-    images: { url: string }[];
-    [key: string]: any;
-  };
-  variant: {
-    name: string;
-    size: string;
-    color: string;
-    [key: string]: any;
-  } | null;
-}
-
-export interface Order {
-  id: string;
-  created_at: string;
-  user_id: string;
-  status: string;
-  total_amount: number;
-  shipping_address: string;
-  payment_method: string;
-  customer_name: string;
-  customer_email: string;
-  customer_phone: string;
-  tracking_number: string | null;
-  notes: string | null;
-  items: OrderItem[];
-}
-
-export interface CategoryResponse extends Category {
-  [key: string]: any;
-}
-
-export interface OrderResponse extends Order {
-  [key: string]: any;
-}
-
-export interface ProductResponse extends Product {
-  [key: string]: any;
-}
-
 export interface DashboardStats {
   totalProducts: number;
   totalCategories: number;
   totalOrders: number;
   totalRevenue: number;
-  [key: string]: any;
+}
+
+// Address interfaces for shipping and billing
+export interface Address {
+  firstName: string;
+  lastName: string;
+  address: string;
+  city: string;
+  postalCode: string;
+  country: string;
+  phone?: string;
+}
+
+// Cart item interface
+export interface CartItem {
+  id: string;
+  productId: string;
+  variantId?: string | null;
+  name: string;
+  price: number;
+  quantity: number;
+  image: string;
+  variant?: {
+    name: string;
+    size?: string;
+    color?: string[];
+  } | null;
 }

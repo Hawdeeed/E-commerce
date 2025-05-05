@@ -5,6 +5,7 @@ import { getAllProducts, getAllCategories, getAllOrders } from '../../../lib/api
 import Loader from '../../../app/components/Loader';
 import Link from 'next/link';
 import { ROUTES } from '@/app/share/routes';
+import { Order } from '@/app/share/types';
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -26,7 +27,7 @@ export default function AdminDashboard() {
           products: products.length,
           categories: categories.length,
           orders: orders.length,
-          revenue: orders.reduce((total: number, order: any) => total + order.total_amount, 0)
+          revenue: orders.reduce((total: number, order: Order) => total + order.total_amount, 0)
         });
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
