@@ -19,8 +19,6 @@ export default function ProductsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [deleting, setDeleting] = useState<string | null>(null);
-  const [editingProduct, setEditingProduct] = useState<string | null>(null);
-  const [editData, setEditData] = useState<{ [key: string]: any }>({});
 
   const fetchProducts = useCallback(async () => {
     try {
@@ -45,65 +43,15 @@ export default function ProductsPage() {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, searchQuery, getAllProducts]); // Include all dependencies
+  }, [currentPage, searchQuery]); // Include all dependencies
   
   useEffect(() => {
     fetchProducts();
   }, [fetchProducts]);
 
-  const handleEdit = (productId: string) => {
-    const product = products.find(p => p.id === productId);
-    if (!product) return;
-
-    setEditingProduct(productId);
-    setEditData({
-      name: product.name || '',
-      description: product.description || '',
-      price: product.price || 0,
-      sale_price: product.sale_price || null,
-      in_stock: product.in_stock || false,
-      featured: product.featured || false
-    });
-  };
-
-  const handleEditChange = (field: keyof Product, value: any) => {
-    setEditData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
-
-  const handleSaveEdit = async (productId: string) => {
-    if (!editingProduct) return;
-
-    try {
-      const { error } = await supabase
-        .from('products')
-        .update({
-          name: editData.name,
-          description: editData.description,
-          price: editData.price,
-          sale_price: editData.sale_price,
-          in_stock: editData.in_stock,
-          featured: editData.featured
-        })
-        .eq('id', productId);
-
-      if (error) throw error;
-
-      setEditingProduct(null);
-      setEditData({});
-      fetchProducts(); // Refresh the list
-      alert('Product updated successfully');
-    } catch (error) {
-      console.error('Error updating product:', error);
-      alert('Failed to update product. Please try again.');
-    }
-  };
-
-  const handleCancelEdit = () => {
-    setEditingProduct(null);
-    setEditData({});
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setCurrentPage(1);
   };
 
   const handleDeleteProduct = async (productId: string) => {
@@ -146,11 +94,6 @@ export default function ProductsPage() {
         setDeleting(null);
       }
     }
-  };
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    setCurrentPage(1);
   };
 
   if (loading && products.length === 0) {
@@ -232,81 +175,35 @@ export default function ProductsPage() {
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {editingProduct === product.id ? (
-                        <div className="flex items-center space-x-2">
-                          <select
-                            value={editData.in_stock}
-                            onChange={(e) => handleEditChange('in_stock', e.target.value === 'true')}
-                            className="border rounded-md px-2 py-1"
-                          >
-                            <option value="true">In Stock</option>
-                            <option value="false">Out of Stock</option>
-                          </select>
-                          <select
-                            value={editData.featured}
-                            onChange={(e) => handleEditChange('featured', e.target.value === 'true')}
-                            className="border rounded-md px-2 py-1"
-                          >
-                            <option value="true">Featured</option>
-                            <option value="false">Not Featured</option>
-                          </select>
-                        </div>
-                      ) : (
-                        <>
-                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${product.in_stock
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-red-100 text-red-800'
-                            }`}>
-                            {product.in_stock ? 'In Stock' : 'Out of Stock'}
-                          </span>
-                          {product.featured && (
-                            <span className="ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
-                              Featured
-                            </span>
-                          )}
-                        </>
+                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${product.in_stock
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-red-100 text-red-800'
+                        }`}>
+                        {product.in_stock ? 'In Stock' : 'Out of Stock'}
+                      </span>
+                      {product.featured && (
+                        <span className="ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
+                          Featured
+                        </span>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      {editingProduct === product.id ? (
-                        <div className="flex justify-end space-x-2">
-                          <button
-                            onClick={() => handleSaveEdit(product.id)}
-                            className="text-green-600 hover:text-green-900 transition-colors duration-150"
-                          >
-                            Save
-                          </button>
-                          <button
-                            onClick={handleCancelEdit}
-                            className="text-gray-600 hover:text-gray-900 transition-colors duration-150"
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="flex justify-end space-x-2">
-                          <button
-                            onClick={() => handleEdit(product.id)}
-                            className="text-indigo-600 hover:text-indigo-900 transition-colors duration-150"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleDeleteProduct(product.id)}
-                            disabled={deleting === product.id}
-                            className="text-red-600 hover:text-red-900 transition-colors duration-150 disabled:opacity-50"
-                          >
-                            {deleting === product.id ? 'Deleting...' : 'Delete'}
-                          </button>
-                          <Link
-                            href={`/product/${product.id}`}
-                            target="_blank"
-                            className="text-gray-600 hover:text-gray-900 transition-colors duration-150"
-                          >
-                            View
-                          </Link>
-                        </div>
-                      )}
+                      <div className="flex justify-end space-x-2">
+                        <button
+                          onClick={() => handleDeleteProduct(product.id)}
+                          disabled={deleting === product.id}
+                          className="text-red-600 hover:text-red-900 transition-colors duration-150 disabled:opacity-50"
+                        >
+                          {deleting === product.id ? 'Deleting...' : 'Delete'}
+                        </button>
+                        <Link
+                          href={`/product/${product.id}`}
+                          target="_blank"
+                          className="text-gray-600 hover:text-gray-900 transition-colors duration-150"
+                        >
+                          View
+                        </Link>
+                      </div>
                     </td>
                   </tr>
                 ))
